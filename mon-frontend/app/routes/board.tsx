@@ -1,6 +1,7 @@
 import type { Route } from "./+types/login";
-import { useLoaderData } from "react-router";
-import { getToken } from "../session.server";
+import { redirect } from "react-router";
+import { fetchWithAuth } from "../session.server";
+import { API_URL } from "~/utils/config";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,30 +12,16 @@ export function meta({}: Route.MetaArgs) {
 
 
 export async function loader({ request, params }: Route.LoaderArg) {
-  const token = await getToken(request);
-  console.log("Token in boards loader:", token);
 
-  if (!token) {
-    throw new Response("Unauthorized", { status: 401 });
-  }
 
   const boardId = params.id;
-  const boardResponse = await fetch(`http://localhost:8000/api/boards/${boardId}/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const boardResponse = await fetchWithAuth(`${API_URL}/boards/${boardId}/`, request);
   if (!boardResponse.ok) {
     throw new Error("Impossible de récupérer les données du board");
   }
   const boardData = await boardResponse.json();
 
-  const response = await fetch(`http://localhost:8000/api/columns/?board=${boardId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+  const response = await fetchWithAuth(`${API_URL}/columns/?board=${boardId}`, request);
   if (!response.ok) {
     throw new Error("Impossible de récupérer les données");
   }

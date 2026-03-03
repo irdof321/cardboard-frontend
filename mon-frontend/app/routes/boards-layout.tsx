@@ -1,6 +1,7 @@
 import type { Route } from "./+types/login";
 import { Form, Link, Outlet, useLoaderData } from "react-router";
-import { getToken } from "../session.server";
+import { fetchWithAuth } from "../session.server";
+import { API_URL } from "~/utils/config";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,13 +16,8 @@ export async function action({ request }: Route.ActionArgs) {
 
 
 export async function loader({ request }: Route.LoaderArgs) {
-    const token = await getToken(request);
 
-    const boards = await fetch("http://127.0.0.1:8000/api/boards/", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    const boards = await fetchWithAuth(`${API_URL}/boards/`, request);
 
     if (!boards.ok) {
         throw new Error("Impossible de récupérer les tableaux");

@@ -3,6 +3,7 @@ import { Form, Link } from "react-router";
 import { useEffect } from "react";
 import { redirect } from "react-router";
 import { getSession, commitSession } from "../session.server";
+import { API_URL } from "~/utils/config";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -25,7 +26,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/token/", {
+    const res = await fetch(`${API_URL}/token/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,6 +46,7 @@ export async function action({ request }: Route.ActionArgs) {
     
     const session = await getSession(request);
     session.set("token", data.access);
+    session.set("refreshToken", data.refresh);
     session.set("username", String(username));
 
     return redirect("/boards-layout", {

@@ -1,5 +1,4 @@
 import type { Route } from "./+types/login";
-import { useLoaderData } from "react-router";
 // import { getToken } from "../session.server";
 
 export function meta({}: Route.MetaArgs) {
@@ -12,7 +11,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Boards() {
   return (
     <div>
-      <h2>Sélectionne un board2 dans la navbar</h2>
+      <h2>Select a board</h2>
     </div>
   );
 }

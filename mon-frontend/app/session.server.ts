@@ -40,57 +40,47 @@ export async function destroySession(session: Awaited<ReturnType<typeof getSessi
   return sessionStorage.destroySession(session);
 }
 
-export function fetchWithToken(url: string, token: string, options = {}) {
+export function fetchWithToken(url: string, token: string, options: any = {}) {
   return fetch(url, {
     ...options,
     headers: {
+      ...options.headers,
       Authorization: `Bearer ${token}`,
     },
   });
 }
 
-export async function fetchWithAuth(url: string, request: Request, options = {}) {
-  // 1. Retrieve the token from the session
+export async function fetchWithAuth(url: string, request: Request, options: any = {}) {
   const token = await getToken(request);
   if (!token) {
     throw redirect("/");
   }
-  // 2. Make the request with the token in the Authorization header
-  let last_response = null;
+
   const response = await fetchWithToken(url, token, options);
-  // 3. If 401, refresh the token and retry
+
   if (response.status === 401) {
     const refreshToken = await getRefreshToken(request);
     if (!refreshToken) {
       throw redirect("/");
     }
+
     const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh: refreshToken }),
     });
+
     if (!refreshResponse.ok) {
       throw redirect("/");
     }
-    const session = await getSession(request);
+
     const refreshData = await refreshResponse.json();
+    const session = await getSession(request);
     session.set("token", refreshData.access);
     await commitSession(session);
-  
-    const retryResponse = await fetchWithToken(url, refreshData.access, options);  
-    if (!retryResponse.ok) {
-      throw new Error("Request failed after token refresh");
-    }
-    last_response = retryResponse;
-  } else if (!response.ok) {
-    throw new Error("Request failed");
-  } else {
-    last_response = response;
+
+    return fetchWithToken(url, refreshData.access, options);
   }
-  
-  
-    // 4. Return the final response
-    return last_response;
+
+  return response;
 }

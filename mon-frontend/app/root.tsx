@@ -1,11 +1,15 @@
 import {
   isRouteErrorResponse,
   Links,
+  Link,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
+  Form,
 } from "react-router";
+import { getToken} from "./session.server";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -23,7 +27,23 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+
+export async function loader({ request }) {
+  const token = await getToken(request);
+
+  return {
+    "token" : token,
+  };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  return null;
+}
+
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const  data = useLoaderData<typeof loader>();
+
   return (
     <html lang="en">
       <head>
@@ -33,7 +53,47 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <div style={{ display: "flex", minHeight: "100vh" }}>
+          <aside className="w-56 p-4 border-r border-gray-200">
+            <h2>CardBoard</h2>
+            <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <Link to="/">Accueil</Link>
+              <Link to="/about">About</Link>              
+              {data.token && <Link to="/boards">Boards</Link>}
+              {data.token ?  (
+                
+                <Form method="post" action="/logout">
+                  <button type="submit">Logout</button>
+                </Form>
+              ):
+              (
+                <Form method="post" action="/login">
+                  <div>
+                    <label>
+                      Username
+                      <input type="text" name="username" />
+                    </label>
+                  </div>
+
+                  <div>
+                    <label>
+                      Password
+                      <input type="password" name="password" />
+                    </label>
+                  </div>
+
+                  <button type="submit">LogIn</button>
+                </Form>
+              ) 
+            }
+              
+              {/* <Link to="/login">Login</Link> */}
+            </nav>
+          </aside>
+
+          <main style={{ flex: 1, padding: "1rem" }}>{children}</main>
+        </div>
+
         <ScrollRestoration />
         <Scripts />
       </body>

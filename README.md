@@ -77,14 +77,8 @@ Django Server (Python)
 ## Run locally
 
 ```bash
-# Backend
-cd backend
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-
 # Frontend
-cd frontend
+cd mon-frontend
 npm install
 npm run dev
 ```

@@ -49,7 +49,7 @@ export async function action({ request }: Route.ActionArgs) {
     session.set("refreshToken", data.refresh);
     session.set("username", String(username));
 
-    return redirect("/boards-layout", {
+    return redirect("/boards", {
     headers: {
         "Set-Cookie": await commitSession(session),
     },

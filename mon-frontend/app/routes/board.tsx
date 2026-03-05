@@ -65,8 +65,34 @@ export async function action({ request }: Route.ActionArgs) {
 
   const intent = formData.get("intent");
   const boardId = formData.get("boardId");
+  if (intent === "update") {    
+  // PATCH /api/cards/:id/
+    try {
+      const cardId = formData.get("cardId");
+      const patch = {
+        status: formData.get("status"),
+        priority: formData.get("priority"),
+      };
+      
+      const response = await fetchWithAuth(`${API_URL}/cards/${cardId}/`, request, {
+        method: 'PATCH',
+        body: JSON.stringify(patch),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMsg = encodeURIComponent(JSON.stringify(errorData));
+        return redirect(`/boards/${boardId}?success=false&msg=${errorMsg}`);
+      }
+      
+        return redirect(`/boards/${boardId}?success=true`);
+      
+    } catch (e) {
+      return redirect(`/boards/${boardId}?success=false`);
+    }
 
-    if (intent === "delete") {
+  } else if (intent === "delete") {
       // DELETE /api/cards/:id/
       try {
         const cardId = formData.get("cardId");
@@ -86,8 +112,7 @@ export async function action({ request }: Route.ActionArgs) {
         return redirect(`/boards/${boardId}?success=false`);
       }
     } else {
-      // POST /api/cards/ (creation)
-   
+      // POST /api/cards/ (creation)   
       
       const card = {
         title: formData.get("title"),
@@ -152,8 +177,23 @@ const [showToast, setShowToast] = useState(false);
                   <p>{card.content}</p>
                   <hr />
                   <p>Assigned to: {card.assigned_to}</p>
-                  <p>Status: {card.status}</p>
-                  <p>Priority: {card.priority}</p>
+                  <form method="post" onChange={(e) => e.currentTarget.submit()}>
+                    <input type="hidden" name="intent" value="update" />
+                    <input type="hidden" name="cardId" value={card.id} />
+                    <input type="hidden" name="boardId" value={loaderData.boardId} />
+                    
+                    <select name="status" defaultValue={card.status}>
+                      {loaderData?.choices?.status?.map((s: any) => (
+                        <option key={s[0]} value={s[0]}>{s[1]}</option>
+                      ))}
+                    </select>
+
+                    <select name="priority" defaultValue={card.priority}>
+                      {loaderData?.choices?.priority?.map((p: any) => (
+                        <option key={p[0]} value={p[0]}>{p[1]}</option>
+                      ))}
+                    </select>
+                  </form>
                   <form method="post">
                     <input type="hidden" name="intent" value="delete" />
                     <input type="hidden" name="cardId" value={card.id} />

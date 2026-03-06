@@ -113,6 +113,12 @@ select {
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
+
+select option {
+  background: #1e1e2e;  
+  color: #e2e8f0;       
+}
+
 input::placeholder,
 textarea::placeholder {
   color: #91a0cb;

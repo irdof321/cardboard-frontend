@@ -11,9 +11,9 @@ export default function Home() {
   return (
     <main>
       <div className="hero">
-        <h1>Mon frontend</h1>
+        <h1>My frontend</h1>
         <p>
-          Frontend moderne en React Router connecté à un backend Django REST.
+          Modern Frontend with React ROuter connected to a Django backend via REST.
         </p>
 
         <div className="actions">

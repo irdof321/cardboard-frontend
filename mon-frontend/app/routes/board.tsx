@@ -15,38 +15,45 @@ export function meta({}: Route.MetaArgs) {
 export async function loader({ request, params }: Route.LoaderArg) {
 
   const boardId = params.id;
-  const boardResponse = await fetchWithAuth(`${API_URL}/boards/${boardId}/`, request,
+
+  const [boardResponse, choicesResponse, ColumnResponse  ] = await Promise.all([
+    fetchWithAuth(`${API_URL}/boards/${boardId}/`, request,
     {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-    });
+    }),
+    fetchWithAuth(`${API_URL}/cards/card_choices`, request,
+    {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+    }),
+    fetchWithAuth(`${API_URL}/columns/?board=${boardId}`, request)
+
+  ]);
+
 
   if (!boardResponse.ok) {
     throw new Error("Impossible de récupérer les données du board");
   }
-  const boardData = await boardResponse.json();
 
-  const response = await fetchWithAuth(`${API_URL}/columns/?board=${boardId}`, request);
-  if (!response.ok) {
+  if (!ColumnResponse.ok) {
     throw new Error("Impossible de récupérer les données");
-  }
+  }  
 
-  const data = await response.json();
-
-  const choicesResponse = await fetchWithAuth(`${API_URL}/cards/card_choices`, request,
-    {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-    });
   if (!choicesResponse.ok) {
     throw new Error("Impossible de récupérer les données");
   }
 
-  const choices = await choicesResponse.json();  
+  const [boardData, columnData, choices] = await Promise.all([
+    boardResponse.json(),
+    ColumnResponse.json(),
+    choicesResponse.json()
+  ]);
+
 
   const memberIds = boardData.members.join(',');
   const usersResponse = await fetchWithAuth(`${API_URL}/users/?ids=${memberIds}`, request);
@@ -56,7 +63,7 @@ export async function loader({ request, params }: Route.LoaderArg) {
   const success = url.searchParams.get("success");
   const msg = url.searchParams.get("msg");
 
-  return {data, boardId, boardName: boardData.name, choices, members, success, msg}
+  return {columnData, boardId, boardName: boardData.name, choices, members, success, msg}
 }
 
 export async function action({ request }: Route.ActionArgs) {

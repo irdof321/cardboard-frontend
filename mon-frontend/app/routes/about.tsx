@@ -36,7 +36,7 @@ export default function About({ loaderData }: Route.ComponentProps) {
       <p>Todo title: {loaderData.todo.title}</p>
       <p>Completed: {loaderData.todo.completed ? "yes" : "no"}</p>
       <p>Auth header sent: {loaderData.sentAuthHeader ? "yes" : "no"}</p>
-      <Link to="/">Retour à l'accueil</Link>
+      <Link to="/">Home</Link>
     </main>
   );
 }

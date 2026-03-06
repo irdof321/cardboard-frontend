@@ -57,7 +57,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <aside className="w-56 p-4 border-r border-gray-200">
             <h2>CardBoard</h2>
             <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <Link to="/">Accueil</Link>
+              <Link to="/">Home</Link>
               <Link to="/about">About</Link>              
               {data.token && <Link to="/boards">Boards</Link>}
               {data.token ?  (

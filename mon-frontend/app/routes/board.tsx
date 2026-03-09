@@ -174,7 +174,7 @@ const [showToast, setShowToast] = useState(false);
       )}
       <h2>Board {loaderData?.boardName}</h2>
       <div className="row">
-        {loaderData?.data?.map((column: any) => (
+        {loaderData?.columnData?.map((column: any) => (
           <div className="column" key={column.id}>
             <h3>{column.name}</h3>
               {column.cards.map((card: any) => (

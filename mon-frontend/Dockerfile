@@ -32,19 +32,18 @@ RUN addgroup --system --gid 1001 remix
 RUN adduser --system --uid 1001 remix
 
 # Copy production node_modules
-COPY --from=production-deps /app/node_modules ./node_modules
+COPY --chown=remix:remix --from=production-deps /app/node_modules ./node_modules
 
 # Copy the built application
-COPY --from=builder /app/build ./build
+COPY --chown=remix:remix --from=builder /app/build ./build
 
 # Copy public directory for static assets
-COPY --from=builder /app/public ./public
+COPY --chown=remix:remix --from=builder /app/public ./public
 
 # Copy package.json (needed for the start script)
-COPY package.json .
+COPY --chown=remix:remix package.json .
 
-# Set ownership
-RUN chown -R remix:remix /app
+
 
 USER remix
 

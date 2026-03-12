@@ -1,5 +1,5 @@
 import { createCookieSessionStorage, redirect } from "react-router";
-import { API_URL } from "./utils/config"; 
+import { API_URL, TOKEN_URL } from "./utils/config"; 
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -64,10 +64,16 @@ export async function fetchWithAuth(url: string, request: Request, options: any 
       throw redirect("/");
     }
 
-    const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
+    const body = new URLSearchParams();
+    body.append("grant_type", "refresh_token");
+    body.append("refresh_token", refreshToken);
+    body.append("client_id", CLIENT_ID);
+    body.append("client_secret", CLIENT_SECRET);
+
+    const refreshResponse = await fetch(TOKEN_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh: refreshToken }),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body,
     });
 
     if (!refreshResponse.ok) {
